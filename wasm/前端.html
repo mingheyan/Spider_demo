@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>登录页面</title>
+    <style>
+        body {
+            background: #f6f5f7;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 14px 28px rgba(0,0,0,0.25), 0 10px 10px rgba(0,0,0,0.22);
+            padding: 40px;
+            width: 400px;
+            text-align: center;
+        }
+
+        h2 {
+            color: #333;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+
+        input:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76,175,80,0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background: linear-gradient(45deg, #45a049, #4CAF50);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        #timestamp {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 20px;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+        }
+
+        #hashResult {
+            margin-top: 20px;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 12px;
+            color: #666;
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            text-align: left;
+        }
+
+        .status-message {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .status-message.success {
+            background-color: #dff0d8;
+            color: #3c763d;
+            border: 1px solid #d6e9c6;
+            display: block;
+        }
+
+        .status-message.error {
+            background-color: #f2dede;
+            color: #a94442;
+            border: 1px solid #ebccd1;
+            display: block;
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon i {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #666;
+        }
+    </style>
+    <!-- 添加 Font Awesome 图标 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <div class="login-container">
+        <h2>安全登录系统</h2>
+        <div id="timestamp"></div>
+        <div class="form-group">
+            <label for="username">用户名</label>
+            <div class="input-icon">
+                <input type="text" id="username" name="username" placeholder="请输入用户名">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="password">密码</label>
+            <div class="input-icon">
+                <input type="password" id="password" name="password" placeholder="请输入密码">
+                <i class="fas fa-lock"></i>
+            </div>
+        </div>
+        <button onclick="handleLogin()">
+            <i class="fas fa-sign-in-alt"></i> 登录
+        </button>
+        <div id="hashResult"></div>
+        <div id="statusMessage" class="status-message"></div>
+    </div>
+
+    <script type="module">
+        import init, { verify_login, hash_password, get_timestamp } from './wasm_new/pkg/wasm_new.js';
+
+        async function initWasm() {
+            await init();
+            window.verify_login = verify_login;
+            window.hash_password = hash_password;
+            window.get_timestamp = get_timestamp;
+            
+            updateTimestamp();
+            setInterval(updateTimestamp, 1000);
+        }
+
+        function updateTimestamp() {
+            const timestamp = get_timestamp();
+            document.getElementById('timestamp').textContent = `当前时间: ${timestamp}`;
+        }
+
+        function showMessage(message, isSuccess) {
+            const statusElement = document.getElementById('statusMessage');
+            statusElement.textContent = message;
+            statusElement.className = 'status-message ' + (isSuccess ? 'success' : 'error');
+            setTimeout(() => {
+                statusElement.style.display = 'none';
+            }, 3000);
+        }
+
+        initWasm();
+
+        window.handleLogin = function() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            
+            if (!username || !password) {
+                showMessage('请输入用户名和密码', false);
+                return;
+            }
+
+            const hashedPassword = hash_password(password);
+            document.getElementById('hashResult').textContent = `MD5 哈希值: ${hashedPassword}`;
+            console.log(username);
+            console.log(password);
+            console.log(hashedPassword);
+           
+            const isValid = verify_login(username, password);
+
+            if (isValid) {
+                showMessage('登录成功！', true);
+                setTimeout(() => {
+                    // 这里可以添加登录成功后的跳转逻辑
+                }, 1000);
+            } else {
+                showMessage('用户名或密码错误！', false);
+            }
+        };
+
+        // 添加回车键登录支持
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleLogin();
+            }
+        });
+    </script>
+</body>
+</html>
