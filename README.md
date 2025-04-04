@@ -18,10 +18,11 @@ Spider\_demo/
 
 ├      ├──├      ├──readme(必看，如何使用该程序)
 
-
 目前已更新:
 
 **wasm**
+
+headers_sequence(请求头顺序反爬)
 
 更新中.....
 
