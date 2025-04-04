@@ -22,6 +22,7 @@ Spider\_demo/
 目前已更新:
 
 **wasm**
+headers顺序反爬
 
 更新中.....
 
