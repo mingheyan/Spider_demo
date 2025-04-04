@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>请求头顺序测试</title>
+    <meta charset="utf-8">
+    <!-- 引入 jQuery -->
+    <script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+</head>
+<body>
+    <h1>请求头顺序测试</h1>
+    
+    <button onclick="sendRequest()">发送请求</button>
+    
+    <div id="result" style="margin-top: 20px;"></div>
+
+    <script>
+        function sendRequest() {
+            $.ajax({
+                url: '/api/check',
+                type: 'POST',
+                success: function(data) {
+                    document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+                },
+                error: function(xhr, status, error) {
+                    document.getElementById('result').innerText = 'Error: ' + error;
+                }
+            });
+        }
+    </script>
+</body>
+</html> 
