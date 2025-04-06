@@ -20,10 +20,9 @@ Spider\_demo/
 
 目前已更新:
 
-**wasm**
-headers顺序反爬
-
-headers_sequence(请求头顺序反爬)
+- **wasm**
+- **headers_sequence(请求头顺序反爬)**
+- **axios**
 
 更新中.....
 
